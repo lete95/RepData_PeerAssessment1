@@ -1,32 +1,23 @@
----
-title: "Assignment 1, week 2"
-author: "Pol Serra"
-date: "28 març de 2018"
-output: html_document
----
-## Loading and preprocessing the data
-```{r 1,echo=TRUE}
+#READ THE activityData
+unzip(zipfile="activity.zip")
 activityData <- read.csv("activity.csv")
-```
-## What is mean total number of steps taken per day?
-```{r 2,echo=TRUE}
+
+#Make the histogram
 require(ggplot2)
 dailySteps <- tapply(activityData$steps, activityData$date, FUN=sum, na.rm=TRUE)
 qplot(dailySteps, binwidth=1000, xlab="Number of steps", ylab="Times",fill=I("blue"), 
       col=I("red"))
 mean(dailySteps, na.rm=TRUE)
 median(dailySteps, na.rm=TRUE)
-```
-## What is the average daily activity pattern?
-```{r 3,echo=TRUE}
+
+#Compute the means for 5-min intervals and plot the max
 require(ggplot2)
 meanSteps <- aggregate(x=list(steps=activityData$steps), by=list(interval=activityData$interval),
                       FUN=mean, na.rm=TRUE)
 ggplot(data=meanSteps,aes(x=interval, y=steps))+geom_line(colour="#CC0000")+xlab("5min interval")+ylab("Mean steps")
 meanSteps[which.max(meanSteps$steps),]
-```
-## Imputing missing values
-```{r 4,echo=TRUE}
+
+#Create imputed data histogram and means
 missings<- is.na(activityData$steps)
 summary(missings)
 imputedActivityData <- activityData
@@ -36,9 +27,8 @@ qplot(dailySteps2, binwidth=1000, xlab="total number of steps taken each day")
 mean(dailySteps2)
 median(dailySteps2)
 
-```
-## Are there differences in activity patterns between weekdays and weekends?
-```{r 5s,echo=TRUE}
+
+#Function to select weekday or weekend (days are in my own european language because of my System lang.)
 weekday.or.weekend <- function(date) {
     day <- weekdays(date)
     if (day %in% c("dilluns", "dimarts", "dimecres", "dijous", "divendres"))
@@ -54,7 +44,3 @@ table(imputedActivityData$day)
 meanSteps3 <- aggregate(steps ~ interval + day, data=imputedActivityData, mean)
 ggplot(meanSteps3, aes(interval, steps)) + geom_line(colour="#CC0000") + facet_grid(day ~ .) +
     xlab("5min interval") + ylab("Mean steps")
-```
-
-
-
